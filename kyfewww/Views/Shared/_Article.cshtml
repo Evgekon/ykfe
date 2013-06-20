@@ -1,0 +1,33 @@
+﻿@model kyfelib.Article
+
+@section scripts {
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$('#myTab a').click(function(e) {
+				e.preventDefault();
+				$(this).tab('show');
+			});
+			$('#myTab a:first').tab('show');
+		});
+	</script>
+}
+
+<div class="article">
+	<ul class="nav nav-tabs" id="langTab">
+		<li class="active"><a href="#ru" data-toggle="tab">Ru</a></li>
+		<li><a href="#en" data-toggle="tab">En</a></li>
+		<li><a href="#es" data-toggle="tab">Es</a></li>
+	</ul>
+	<div class="tab-content">
+		<div class="tab-pane active" id="ru">...ru</div>
+		<div class="tab-pane" id="en">...en</div>
+		<div class="tab-pane" id="es">...es</div>
+	</div>
+
+	<div class="content" langid="">
+		<h2>@Model.Name</h2>
+		<div class="date">@DateTime.ParseExact(Model.RowKey, "yyyyMMddHHmmssffff", System.Globalization.CultureInfo.InvariantCulture).ToShortDateString()</div>
+		@Html.Raw(Model.Text)
+		<div class="author">@Model.Author</div>
+	</div>
+</div>
