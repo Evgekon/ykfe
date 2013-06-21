@@ -35,14 +35,13 @@ namespace kyfewww.Controllers
 			return View();
 		}
 
-		public ActionResult Articles()
+		public ActionResult ArticleEdit(string id)
 		{
+			if (!string.IsNullOrEmpty(id))
+				return View(_dataHelper.ArticleGet(id));
 			return View();
-		}
 
-        public ActionResult Article()
-        {
-            return View();
-        }
+
+		}
 	}
 }

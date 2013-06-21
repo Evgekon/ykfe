@@ -42,9 +42,7 @@ namespace kyfewww.Controllers
 		// Create POST api/article
 		public Article Post(Article article)
 		{
-			var newArticle = new Article(article.PartitionKey, article.Name, article.Locale, article.Text, article.Author);
-
-			return _dataHelper.ArticleCreate(newArticle);
+			return _dataHelper.ArticleCreate(article);
 		}
 
 		// Update PUT api/article/5

@@ -1,55 +1,62 @@
-﻿@{
+﻿@using kyfelib
+@model Article
+@{
 	ViewBag.Title = "KYFE Articles";
 }
 
 @section scripts {
 	<script type="text/javascript">
-		$(document).ready(function () {
+		var LOCALES = ["ru", "en", "es"];
+		$(document).ready(function() {
 			var apiUrl = "/api/edit";
-			
+
+			$('#langTab a:first').tab('show');
+
 			function addArticleRow(item) {
 				$("#articles tbody").append("<tr><td>" + item.RowKey + "</td><td>" + item.Name + "</td><td>" + item.Author + "</td></tr>");
 			}
 
 			function updateArticleRow(item) {
-				
+
 			}
-			
+
 			function articleGetList(page) {
-				$.getJSON(apiUrl).done(function (data) {
-					$.each(data, function (key, item) {
+				$.getJSON(apiUrl).done(function(data) {
+					$.each(data, function(key, item) {
 						addArticleRow(item);
 					});
 				});
 			}
-			
+
 			function articleGet(id) {
-				$.getJSON(apiUrl+'/'+id).done(function (data) {
-					
+				$.getJSON(apiUrl + '/' + id).done(function(data) {
+
 				});
 			}
-			
+
 			function articleCreate(data) {
 				$.ajax({
 					url: apiUrl,
 					type: "POST",
 					dataType: "json",
 					data: data,
-					error: function (jqXHR, textStatus, errorThrown) { },
-					success: function (data, textStatus, jqXHR) {
+					error: function(jqXHR, textStatus, errorThrown) {
+					},
+					success: function(data, textStatus, jqXHR) {
 						addArticleRow(data);
 					}
 				});
 			}
-			
+
 			function articleUpdate(data) {
 				$.ajax({
 					url: apiUrl,
 					type: "PUT",
 					dataType: "json",
 					data: data,
-					error: function (jqXHR, textStatus, errorThrown) { },
-					success: function (data, textStatus, jqXHR) {
+					error: function(jqXHR, textStatus, errorThrown) {
+					},
+					success: function(data, textStatus, jqXHR) {
 						updateArticleRow(data);
 					}
 				});
@@ -61,48 +68,63 @@
 					type: "DELETE",
 					dataType: "json",
 					data: id,
-					error: function (jqXHR, textStatus, errorThrown) { },
-					success: function (data, textStatus, jqXHR) {
+					error: function(jqXHR, textStatus, errorThrown) {
+					},
+					success: function(data, textStatus, jqXHR) {
 						if (data) {
-							
-						}
-						else {
-							
+
+						} else {
+
 						}
 					}
 				});
 			}
-			
+
 			$("#btnSave").click(function() {
 				var aType = $('#editType .active').val();
-				var aName = $('#editName').val();
-				var aLanguage = $('#editLanguage .active').val();
-				var aAuthor = $('#editAuthor').val();
-				var aText = $('#editText').val();
-				if ($.trim(aName).length == 0) {
-					$('#editName').addClass("error");
-				}
 				if (!aType) {
 					$("#editType :button").addClass("btn-danger");
 					return;
 				}
-				if (!aLanguage) {
-					$("#editLanguage :button").addClass("btn-danger");
-					return;
-				}
 
-				articleCreate({ "Name": aName, "Locale": aLanguage, "Text": aText, "Author": aAuthor, "PartitionKey": aType });
+				var newArticle = { "PartitionKey": aType, "Locales": [] };
+
+				for (var i = 0; i < LOCALES.length;i++) {
+					var aName = $.trim($('#' + LOCALES[i] + ' :input[name="Name"]').val());
+					var aAuthor = $.trim($('#' + LOCALES[i] + ' :input[name="Author"]').val());
+					var aText = $.trim($('#' + LOCALES[i] + ' :input[name="Text"]').val());
+					var aDraft = $('#' + LOCALES[i] + ' :input[name="Draft"]:checked').length > 0;
+					
+					if (aName.length > 0 || aAuthor.length > 0 || aText.length > 0) {
+						if (aName.length == 0) {
+							$('#' + LOCALES[i] + ' :input[name="Name"]').addClass("error");
+							break;
+						}
+						if (aAuthor.length == 0) {
+							$('#' + LOCALES[i] + ' :input[name="Author"]').addClass("error");
+							break;
+						}
+						if (aText.length == 0) {
+							$('#' + LOCALES[i] + ' :input[name="Text"]').addClass("error");
+							break;
+						}
+
+						newArticle.Locales.push({ "Name": aName, "Locale": LOCALES[i], "Text": aText, "Author": aAuthor, "Draft": aDraft });
+					}
+				}
+				if (newArticle.Locales.length > 0)
+					articleCreate(newArticle);
 			});
 
-			$("#editLanguage :button, #editType :button").click(function () {
+			$("#editLanguage :button, #editType :button").click(function() {
 				$("#editLanguage :button").removeClass("btn-danger");
 			});
-			$("#editType :button").click(function () {
+			$("#editType :button").click(function() {
 				$("#editType :button").removeClass("btn-danger");
 			});
 
 			articleGetList(0);
-			
+
 			$('#editForm').modal({ keyboard: false, hide: true });
 			$("#editForm").hide();
 		});
@@ -137,29 +159,30 @@
 	</div>
 	<div class="modal-body">
 		<p>
-				<label for="editName">Title</label>
-				<input type="text" class="input-xlarge" id="editName" name="Name" />
-			<br />
-			<label for="editType">Type</label>
 			<div class="btn-group" data-toggle="buttons-radio" id="editType">
 				<button type="button" class="btn" name="Type" value="Article">Article</button>
 				<button type="button" class="btn" name="Type" value="Meditation">Meditation</button>
 				<button type="button" class="btn" name="Type" value="Kriya">Kriya</button>
 			</div>
-			<br />
-			<label for="editLanguage">Language</label>
-			<div class="btn-group" data-toggle="buttons-radio" id="editLanguage">
-				<button type="button" class="btn" name="Language" value="1">Ru</button>
-				<button type="button" class="btn" name="Language" value="2">En</button>
-				<button type="button" class="btn" name="Language" value="3">Es</button>
+			<div class="article-edit">
+				<ul class="nav nav-tabs" id="langTab">
+					@foreach (string locale in Enum.GetNames(typeof(Locale)))
+					{
+						<li><a href="#@locale" data-toggle="tab"><strong>@locale</strong></a></li>
+					}
+				</ul>
 			</div>
-
-			<br />
-			<label for="editAuthor">Author</label>
-			<input type="text" class="input-xlarge" id="editAuthor" name="Author" />
-			<br />
-			<label for="editText">Text</label>
-			<textarea id="editText" name="Text" rows="5"></textarea>
+			<div class="tab-content">
+				@foreach (string locale in Enum.GetNames(typeof (Locale)))
+				{
+					<div class="tab-pane" id="@locale">
+						<label>Title&nbsp;<input type="text" class="input-xlarge" name="Name" /></label>
+						<label>Author&nbsp;<input type="text" class="input-xlarge" name="Author" /></label>
+						<label>Text<textarea name="Text" rows="5"></textarea></label>
+						<label class="checkbox"><input type="checkbox" name="Draft">Draft</label>
+					</div>
+				}
+			</div>			
 		</p>
 	</div>
 	<div class="modal-footer">

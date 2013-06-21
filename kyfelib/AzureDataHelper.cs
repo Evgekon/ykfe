@@ -63,6 +63,8 @@ namespace kyfelib
 		#region Article
 		public Article ArticleGet(string id)
 		{
+			//TODO: Выяснилось, что азур не поддерживает комплексные классы, нужно добавить еще таблицу для локализаций и учесть ее при работе со статьями.
+
 			var table = _tableClient.GetTableReference("article");
 			var tableOperation = TableOperation.Retrieve<Article>("Article", id);
 			var result = table.Execute(tableOperation);
@@ -82,6 +84,7 @@ namespace kyfelib
 		public Article ArticleCreate(Article newArticle)
 		{
 			var table = _tableClient.GetTableReference("article");
+			table.DeleteIfExists();
 			table.CreateIfNotExists();
 			var tableOperation = TableOperation.Insert(newArticle);
 			table.Execute(tableOperation);
