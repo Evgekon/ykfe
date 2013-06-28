@@ -1,5 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
-using System.Collections.Generic;
+﻿using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace kyfelib
 {
@@ -7,9 +7,7 @@ namespace kyfelib
 	{
 		public Article()
 		{
-			Locales = new List<ArticleContent>();
+			RowKey = DateTime.UtcNow.ToString("yyyyMMddHHmmssffff");
 		}
-
-		public List<ArticleContent> Locales { get; set; }
 	}
 }

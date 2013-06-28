@@ -63,8 +63,6 @@ namespace kyfelib
 		#region Article
 		public Article ArticleGet(string id)
 		{
-			//TODO: Выяснилось, что азур не поддерживает комплексные классы, нужно добавить еще таблицу для локализаций и учесть ее при работе со статьями.
-
 			var table = _tableClient.GetTableReference("article");
 			var tableOperation = TableOperation.Retrieve<Article>("Article", id);
 			var result = table.Execute(tableOperation);
@@ -104,6 +102,56 @@ namespace kyfelib
 		public bool ArticleDelete(Article deleteArticle)
 		{
 			var table = _tableClient.GetTableReference("article");
+			var tableOperation = TableOperation.Delete(deleteArticle);
+
+			table.Execute(tableOperation);
+
+			return true;
+		}
+		#endregion
+
+		#region ArticleContent
+		public ArticleContent ArticleContentGet(string id)
+		{
+			var table = _tableClient.GetTableReference("articleContent");
+			var tableOperation = TableOperation.Retrieve<ArticleContent>("ArticleContent", id);
+			var result = table.Execute(tableOperation);
+
+			return result.Result == null ? null : result.Result as ArticleContent;
+		}
+
+		public List<ArticleContent> ArticleContentGetList()
+		{
+			var table = _tableClient.GetTableReference("articleContent");
+			var query =
+				new TableQuery<ArticleContent>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Article"));
+
+			return table.ExecuteQuery(query).ToList();
+		}
+
+		public ArticleContent ArticleContentCreate(ArticleContent newArticle)
+		{
+			var table = _tableClient.GetTableReference("articleContent");
+			table.DeleteIfExists();
+			table.CreateIfNotExists();
+			var tableOperation = TableOperation.Insert(newArticle);
+			table.Execute(tableOperation);
+
+			return newArticle;
+		}
+
+		public bool ArticleContentUpdate(ArticleContent updateArticle)
+		{
+			var table = _tableClient.GetTableReference("articleContent");
+			var tableOperation = TableOperation.Replace(updateArticle);
+			table.Execute(tableOperation);
+
+			return true;
+		}
+
+		public bool ArticleContentDelete(ArticleContent deleteArticle)
+		{
+			var table = _tableClient.GetTableReference("articleContent");
 			var tableOperation = TableOperation.Delete(deleteArticle);
 
 			table.Execute(tableOperation);

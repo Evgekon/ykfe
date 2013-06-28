@@ -1,5 +1,5 @@
 ﻿@using kyfelib
-@model Article
+@model kyfewww.Models.ArticleModel
 
 @section scripts {
 	<script type="text/javascript">
@@ -15,18 +15,18 @@
 
 <div class="article">
 	<ul class="nav nav-tabs" id="langTab">
-		@foreach (ArticleContent con in Model.Locales)
+		@foreach (ArticleContent con in Model.Contents)
 		{
 			<li><a href="#@con.Locale.ToString()" data-toggle="tab">@con.Locale.ToString()</a></li>
 		}
 	</ul>
 	<div class="tab-content">
-		@foreach (ArticleContent con in Model.Locales)
+		@foreach (ArticleContent con in Model.Contents)
 		{
 			<div class="tab-pane" id="@con.Locale.ToString()">
 				<div class="content">
 					<h2>@con.Name</h2>
-					<div class="date">@DateTime.ParseExact(Model.RowKey, "yyyyMMddHHmmssffff", System.Globalization.CultureInfo.InvariantCulture).ToShortDateString()</div>
+					<div class="date">@DateTime.ParseExact(Model.Id, "yyyyMMddHHmmssffff", System.Globalization.CultureInfo.InvariantCulture).ToShortDateString()</div>
 					@Html.Raw(con.Text)
 					<div class="author">@con.Author</div>
 				</div>

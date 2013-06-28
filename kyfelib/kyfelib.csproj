@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Article.cs" />
     <Compile Include="ArticleContent.cs" />
+    <Compile Include="ArticleType.cs" />
     <Compile Include="AzureDataHelper.cs" />
     <Compile Include="IDataHelper.cs" />
     <Compile Include="Locale.cs" />
