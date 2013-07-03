@@ -1,4 +1,4 @@
-﻿@model IEnumerable<kyfelib.Article>
+﻿@model IEnumerable<kyfelib.ContentModel>
 @{
 	ViewBag.Title = "YKFE Articles";
 }
@@ -10,16 +10,12 @@
 		});
 	</script>
 }
-<div id="body">
-	<section class="featured">
-		<div
-			class="content-wrapper">
 			<h2>Articles </h2>
-			<button class="btn" data-toggle="modal" data-target="#editForm">Add New</button>
 			<table id="articles" class="table table-striped table-hover">
 				<thead>
 					<tr>
 						<th>Date </th>
+						<th>Type </th>
 						<th>Title </th>
 						<th>Author </th>
 					</tr>
@@ -27,24 +23,25 @@
 				<tbody>
 					@if (Model.Any())
 					{
-						foreach (kyfelib.Article article in Model)
+						foreach (var con in Model)
 						{
+							var name = con.Locales.Any() ? con.Locales[0].Name : string.Empty;
+							var author = con.Locales.Any() ? con.Locales[0].Author : string.Empty;
+							
 							<tr>
-								<td>@Html.ActionLink(article.RowKey, "Index", new {id = article.RowKey})</td>
-								<td>@*article.Locales[0].Name*@</td>
-								<td>@*@article.Locales[0].Author*@</td>
-								<td>@Html.ActionLink("Edit", "ArticleEdit", new{controller = "Home", id = article.RowKey})</td>
+								<td>@Html.ActionLink(con.Id, "Index", new {id = con.Id})</td>
+								<td>@Enum.GetName(typeof(kyfelib.ContentType), con.Type)</td>
+								<td>@name</td>
+								<td>@author</td>
+								<td>@Html.ActionLink("Edit", "Edit", new{controller = "EditContent", area = "Admin", id = con.Id})</td>
 							</tr>
 						}
 					}
 					else
 					{
 						<tr>
-							<td colspan="4">No articles</td>
+							<td colspan="5">No articles</td>
 						</tr>
 					}
 				</tbody>
 			</table>
-		</div>
-	</section>
-</div>

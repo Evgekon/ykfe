@@ -1,7 +1,7 @@
 ﻿
 namespace kyfelib
 {
-	public enum ArticleType
+	public enum ContentType
 	{
 		Article,
 		Meditation,

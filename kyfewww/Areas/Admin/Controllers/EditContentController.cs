@@ -1,38 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Blob;
 using kyfelib;
 
-
-namespace kyfewww.Controllers
+namespace kyfewww.Areas.Admin.Controllers
 {
-	public class HomeController : Controller
-	{
-		private IDataHelper _dataHelper;
+    public class EditContentController : Controller
+    {
+        private IDataHelper _dataHelper;
 
-		public HomeController()
+		public EditContentController()
 		{
 			var storageAccount = CloudStorageAccount.Parse(
 				CloudConfigurationManager.GetSetting("StorageConnectionString"));
 			_dataHelper = new AzureDataHelper(storageAccount);
 		}
 
-		public HomeController(IDataHelper dataHelper)
+		public EditContentController(IDataHelper dataHelper)
 		{
 			_dataHelper = dataHelper;
 		}
 
-
-		public ActionResult Index()
+		public ActionResult Index(string id)
 		{
+			if (!string.IsNullOrEmpty(id))
+				return View(_dataHelper.ContentGet(id));
 			return View();
 		}
-	}
+    }
 }

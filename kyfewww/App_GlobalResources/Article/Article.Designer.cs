@@ -59,5 +59,32 @@ namespace Resources {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Articles.
+        /// </summary>
+        internal static string ArticleLbl {
+            get {
+                return ResourceManager.GetString("ArticleLbl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kriyas.
+        /// </summary>
+        internal static string KriyaLbl {
+            get {
+                return ResourceManager.GetString("KriyaLbl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Meditations.
+        /// </summary>
+        internal static string MeditationLbl {
+            get {
+                return ResourceManager.GetString("MeditationLbl", resourceCulture);
+            }
+        }
     }
 }

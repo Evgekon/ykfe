@@ -59,5 +59,14 @@ namespace Resources {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to YKFE.
+        /// </summary>
+        internal static string SiteTitle {
+            get {
+                return ResourceManager.GetString("SiteTitle", resourceCulture);
+            }
+        }
     }
 }

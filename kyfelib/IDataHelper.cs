@@ -7,14 +7,6 @@ namespace kyfelib
 {
     public interface IDataHelper
 	{
-		#region Tag
-		Tag TagGet(int id);
-	    List<Tag> TagGetList();
-		Tag TagCreate(Tag tag);
-	    bool TagUpdate(Tag tag);
-		bool TagDelete(int id);
-	    #endregion
-
 		#region Image
 
 		string ImageCreate(string name);
@@ -22,12 +14,14 @@ namespace kyfelib
 
 	    #endregion
 
-		#region Article
-		Article ArticleGet(string id);
-		List<Article> ArticleGetList();
-	    Article ArticleCreate(Article newArticle);
-	    bool ArticleUpdate(Article updateArticle);
-		bool ArticleDelete(Article deleteArticle);
+		#region Content
+
+	    ContentModel ContentGet(string id);
+		List<ContentModel> ContentGetList();
+	    List<ContentModel> ContentGetList(ContentType type);
+		ContentModel ContentCreate(ContentModel newArticle);
+		bool ContentUpdate(ContentModel updateArticle);
+		bool ContentDelete(ContentModel deleteArticle);
 		#endregion
 	}
 }

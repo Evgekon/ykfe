@@ -1,15 +1,8 @@
-﻿@model kyfelib.Article
+﻿@model kyfelib.ContentModel
 @{
 	//ViewBag.Title = Model.Locales[0].Name;
 }
 
-<div id="body">
-    <section class="featured">
-	    <div class="content-wrapper">
-		    контент-теги статьи
-		    @{
-			    Html.RenderPartial("_Article", Model);
-		    }
-	    </div>
-    </section>
-</div>
+@{
+	Html.RenderPartial("_Article", Model);
+}

@@ -21,33 +21,6 @@ namespace kyfelib
 			_blobClient = storageAccount.CreateCloudBlobClient();
 		}
 
-		#region Tag
-		public Tag TagGet(int id)
-		{
-			throw new NotImplementedException();
-		}
-
-		public List<Tag> TagGetList()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Tag TagCreate(Tag tag)
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool TagUpdate(Tag tag)
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool TagDelete(int id)
-		{
-			throw new NotImplementedException();
-		}
-		#endregion
-
 		#region Image
 		public string ImageCreate(string name)
 		{
@@ -60,103 +33,176 @@ namespace kyfelib
 		}
 		#endregion
 
-		#region Article
-		public Article ArticleGet(string id)
-		{
-			var table = _tableClient.GetTableReference("article");
-			var tableOperation = TableOperation.Retrieve<Article>("Article", id);
-			var result = table.Execute(tableOperation);
+		#region Content
 
-			return result.Result == null ? null : result.Result as Article;
+		public ContentModel ContentGet(string id)
+		{
+			var table = _tableClient.GetTableReference("Content");
+			var query = new TableQuery<Content>().Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, id));
+			var result = table.ExecuteQuery(query);
+
+			var content = FillContentModel(result).First();
+
+			return content;
 		}
 
-		public List<Article> ArticleGetList()
+		public List<ContentModel> ContentGetList()
 		{
-			var table = _tableClient.GetTableReference("article");
+			var table = _tableClient.GetTableReference("Content");
+			var query = new TableQuery<Content>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.NotEqual, string.Empty));
+			var result = table.ExecuteQuery(query);
+
+			var contList = FillContentModel(result);
+			return contList;
+		}
+
+		public List<ContentModel> ContentGetList(ContentType type)
+		{
+			var table = _tableClient.GetTableReference("Content");
 			var query =
-				new TableQuery<Article>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Article"));
-
-			return table.ExecuteQuery(query).ToList();
+				new TableQuery<Content>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal,
+				                                                                   Enum.GetName(typeof (ContentType), type)));
+			var result = table.ExecuteQuery(query);
+			var contList = FillContentModel(result);
+			return contList;
 		}
 
-		public Article ArticleCreate(Article newArticle)
+		public ContentModel ContentCreate(ContentModel newArticle)
 		{
-			var table = _tableClient.GetTableReference("article");
-			table.DeleteIfExists();
+			var table = _tableClient.GetTableReference("Content");
 			table.CreateIfNotExists();
-			var tableOperation = TableOperation.Insert(newArticle);
+
+			var con = new Content(newArticle.Type);
+			var tableOperation = TableOperation.Insert(con);
 			table.Execute(tableOperation);
 
+			foreach (var locale in newArticle.Locales)
+			{
+				var loc = new ContentLocale(locale.Locale)
+					          {
+						          ContentId = con.RowKey,
+						          Name = locale.Name,
+						          Author = locale.Author,
+						          IsDraft = locale.IsDraft,
+						          Text = locale.Text
+					          };
+				if (locale.Tags.Any())
+					loc.Tags = locale.Tags.Aggregate((workingSentence, next) => workingSentence + ";" + next);
+			}
+			newArticle.Id = con.RowKey;
+			newArticle.Date = DateTime.ParseExact(con.RowKey, "yyyyMMddHHmmssffff",
+															  System.Globalization.CultureInfo.InvariantCulture);
 			return newArticle;
 		}
 
-		public bool ArticleUpdate(Article updateArticle)
+		public bool ContentUpdate(ContentModel updateArticle)
 		{
-			var table = _tableClient.GetTableReference("article");
-			var tableOperation = TableOperation.Replace(updateArticle);
-			table.Execute(tableOperation);
+			var table = _tableClient.GetTableReference("Content");
+			var query = new TableQuery<Content>().Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, updateArticle.Id));
+			var res = table.ExecuteQuery(query).First();
+			var locTable = _tableClient.GetTableReference("ContentLocale");
+			var locQuery =
+					new TableQuery<ContentLocale>().Where(TableQuery.GenerateFilterCondition("ContentId", QueryComparisons.Equal,
+																							 res.RowKey));
+			var locRes = locTable.ExecuteQuery(locQuery).ToList();
+			foreach (var loc in locRes.Where(l=>!updateArticle.Locales.Exists(ul=>Enum.GetName(typeof(Locale), ul.Locale).Equals(l.PartitionKey))))
+			{
+				var tableOperation = TableOperation.Delete(loc);
+				table.Execute(tableOperation);
+			}
+
+			foreach (var locale in updateArticle.Locales)
+			{
+				var locStr = Enum.GetName(typeof (Locale), locale.Locale);
+				var con = new ContentLocale(locale.Locale)
+					          {
+								  PartitionKey = locStr,
+								  ContentId = res.RowKey,
+						          Name = locale.Name,
+						          Author = locale.Author,
+						          IsDraft = locale.IsDraft,
+						          Text = locale.Text,
+						          Tags = locale.Tags.Any()
+							                 ? locale.Tags.Aggregate((workingSentence, next) => workingSentence + ";" + next)
+							                 : null
+					          };
+				if (locRes.Any(l => l.PartitionKey.Equals(locStr)))
+					con.RowKey = locRes.Single(l => l.PartitionKey.Equals(locStr)).RowKey;
+
+				var tableOperation = TableOperation.InsertOrReplace(con);
+				table.Execute(tableOperation);
+			}
 
 			return true;
 		}
 
-		public bool ArticleDelete(Article deleteArticle)
+		public bool ContentDelete(ContentModel deleteArticle)
 		{
-			var table = _tableClient.GetTableReference("article");
-			var tableOperation = TableOperation.Delete(deleteArticle);
+			var table = _tableClient.GetTableReference("Content");
+			var query = new TableQuery<Content>().Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, deleteArticle.Id));
+			foreach (var element in table.ExecuteQuery(query))
+			{
+				var locTable = _tableClient.GetTableReference("ContentLocale");
+				var locQuery =
+					new TableQuery<ContentLocale>().Where(TableQuery.GenerateFilterCondition("ContentId", QueryComparisons.Equal,
+																							 element.RowKey));
 
-			table.Execute(tableOperation);
+				foreach (var loc in locTable.ExecuteQuery(locQuery))
+				{
+					var locOp = TableOperation.Delete(loc);
+					locTable.Execute(locOp);
+				}
+
+				var tableOperation = TableOperation.Delete(element);
+				table.Execute(tableOperation);
+			}
 
 			return true;
 		}
-		#endregion
 
-		#region ArticleContent
-		public ArticleContent ArticleContentGet(string id)
+		private List<ContentModel> FillContentModel(IEnumerable<Content> contents)
 		{
-			var table = _tableClient.GetTableReference("articleContent");
-			var tableOperation = TableOperation.Retrieve<ArticleContent>("ArticleContent", id);
-			var result = table.Execute(tableOperation);
+			var contList = new List<ContentModel>();
 
-			return result.Result == null ? null : result.Result as ArticleContent;
+			foreach (var c in contents)
+			{
+				var content = new ContentModel
+					              {
+						              Id = c.RowKey,
+									  Date =
+							              DateTime.ParseExact(c.RowKey, "yyyyMMddHHmmssffff",
+							                                  System.Globalization.CultureInfo.InvariantCulture),
+						              Type = (ContentType) Enum.Parse(typeof (ContentType), c.PartitionKey)
+					              };
+				content.Locales.AddRange(ContentLocaleGet(c.RowKey));
+				contList.Add(content);
+			}
+
+			return contList;
 		}
 
-		public List<ArticleContent> ArticleContentGetList()
+		public List<ContentModelLocale> ContentLocaleGet(string contentId)
 		{
-			var table = _tableClient.GetTableReference("articleContent");
+			var table = _tableClient.GetTableReference("ContentLocale");
 			var query =
-				new TableQuery<ArticleContent>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Article"));
+				new TableQuery<ContentLocale>().Where(TableQuery.GenerateFilterCondition("ContentId", QueryComparisons.Equal,
+																						 contentId));
 
-			return table.ExecuteQuery(query).ToList();
-		}
-
-		public ArticleContent ArticleContentCreate(ArticleContent newArticle)
-		{
-			var table = _tableClient.GetTableReference("articleContent");
-			table.DeleteIfExists();
-			table.CreateIfNotExists();
-			var tableOperation = TableOperation.Insert(newArticle);
-			table.Execute(tableOperation);
-
-			return newArticle;
-		}
-
-		public bool ArticleContentUpdate(ArticleContent updateArticle)
-		{
-			var table = _tableClient.GetTableReference("articleContent");
-			var tableOperation = TableOperation.Replace(updateArticle);
-			table.Execute(tableOperation);
-
-			return true;
-		}
-
-		public bool ArticleContentDelete(ArticleContent deleteArticle)
-		{
-			var table = _tableClient.GetTableReference("articleContent");
-			var tableOperation = TableOperation.Delete(deleteArticle);
-
-			table.Execute(tableOperation);
-
-			return true;
+			return table.ExecuteQuery(query).Select(loc => new ContentModelLocale
+			{
+				Id = loc.RowKey,
+				Locale = (Locale)Enum.Parse(typeof(Locale), loc.PartitionKey),
+				Name = loc.Name,
+				Text = loc.Text,
+				Author = loc.Author,
+				IsDraft = loc.IsDraft,
+				Tags =
+					(!string.IsNullOrEmpty(loc.Tags))
+						? loc.Tags.Split(';')
+							 .Where(t => !string.IsNullOrEmpty(t))
+							 .ToList()
+						: new List<string>()
+			}).ToList();
 		}
 		#endregion
 

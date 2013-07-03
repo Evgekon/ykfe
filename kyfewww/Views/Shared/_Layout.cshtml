@@ -1,40 +1,58 @@
-﻿<!DOCTYPE html>
+﻿@using kyfelib
+<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>@ViewBag.Title</title>
 	@Styles.Render("~/Content/bootstrap")
 	@Styles.Render("~/Content/css")
+	@Scripts.Render("~/bundles/jquery")
+	@Scripts.Render("~/bundles/bootstrap")
+	@RenderSection("scripts", false)
 </head>
 <body>
-	<header>
-		<div class="content-wrapper">
-			<div class="float-left">
-				<p class="site-title">
-					<a href="~/">YKFE</a>
-				</p>
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span10 offset1">
+				<h1>@Html.ActionLink(Resources._Layout.SiteTitle, "Index", "Home", new { area = "" }, null)</h1>
 			</div>
-			<div class="float-right">
+		</div>
+		<div class="row-fluid">
+			<div class="span3 offset1">
 				<nav>
-					<ul id="menu">
-						<li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
-						<li>@Html.ActionLink("Articles", "Index", "Article", new { area = "", id = "" }, null)</li>
-						<li>@Html.ActionLink("Add Article", "ArticleEdit", "Home", new { area = "", id = "" }, null)</li>
+					<ul id="menu" class="vertical hidden-phone">
+						@foreach (string contentType in Enum.GetNames(typeof(ContentType)))
+	  {
+							<li>
+								@Html.ActionLink(Resources.Article.ResourceManager.GetString(contentType + "Lbl"), "Index", "Article", new { area = "", type = contentType }, null)
+							</li>
+	  }
+						<li>@Html.ActionLink("Add Article", "Index", "EditContent", new { area = "Admin", id = "" }, null)</li>
+					</ul>
+					<ul id="menu" class="horizontal visible-phone">
+						@foreach (string contentType in Enum.GetNames(typeof(ContentType)))
+	  {
+							<li>
+								@Html.ActionLink(Resources.Article.ResourceManager.GetString(contentType + "Lbl"), "Index", "EditContent", new { type = contentType }, null)
+							</li>
+	  }
+						<li></li>
+						<li>@Html.ActionLink("Add Article", "Index", "EditContent", new { area = "Admin", id = "" }, null)</li>
 					</ul>
 				</nav>
 			</div>
+			<div class="span7">
+				@RenderBody()
+			</div>
 		</div>
-	</header>
-	@RenderBody()
-
-	@Scripts.Render("~/bundles/jquery")
-	@Scripts.Render("~/bundles/bootstrap")
-	@RenderSection("scripts", required: false)
-	<footer>
-		<div class="content-wrapper">
-			&copy;YKFE @DateTime.Now.Year
+		<div class="row-fluid">
+			<div class="span10 offset1">
+				<p class="text-center">
+					<h5>&copy;YKFE @DateTime.Now.Year ☬</h5>
+				</p>
+			</div>
 		</div>
-	</footer>
+	</div>
 </body>
 </html>

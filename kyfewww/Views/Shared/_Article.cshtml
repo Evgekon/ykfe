@@ -1,10 +1,10 @@
 ﻿@using kyfelib
-@model kyfewww.Models.ArticleModel
+@model ContentModel
 
 @section scripts {
 	<script type="text/javascript">
 		$(document).ready(function () {
-			$('#myTab a').click(function(e) {
+			$('#myTab a').click(function (e) {
 				e.preventDefault();
 				$(this).tab('show');
 			});
@@ -13,24 +13,22 @@
 	</script>
 }
 
-<div class="article">
-	<ul class="nav nav-tabs" id="langTab">
-		@foreach (ArticleContent con in Model.Contents)
-		{
-			<li><a href="#@con.Locale.ToString()" data-toggle="tab">@con.Locale.ToString()</a></li>
-		}
-	</ul>
-	<div class="tab-content">
-		@foreach (ArticleContent con in Model.Contents)
-		{
-			<div class="tab-pane" id="@con.Locale.ToString()">
-				<div class="content">
-					<h2>@con.Name</h2>
-					<div class="date">@DateTime.ParseExact(Model.Id, "yyyyMMddHHmmssffff", System.Globalization.CultureInfo.InvariantCulture).ToShortDateString()</div>
-					@Html.Raw(con.Text)
-					<div class="author">@con.Author</div>
-				</div>
+<ul class="nav nav-tabs" id="langTab">
+	@foreach (var con in Model.Locales)
+ {
+		<li><a href="#@con.Locale.ToString()" data-toggle="tab">@con.Locale.ToString()</a></li>
+ }
+</ul>
+<div class="tab-content">
+	@foreach (var con in Model.Locales)
+ {
+		<div class="tab-pane" id="@con.Locale.ToString()">
+			<div>
+				<h2>@con.Name</h2>
+				<div>@Model.Date.ToShortDateString()</div>
+				@Html.Raw(con.Text)
+				<div>@con.Author</div>
 			</div>
-		}
-	</div>
+		</div>
+ }
 </div>

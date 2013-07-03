@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.WindowsAzure.Storage.Table;
+﻿using Microsoft.WindowsAzure.Storage.Table;
 
 namespace kyfelib
 {
@@ -10,15 +6,14 @@ namespace kyfelib
 	{
 		public User() { }
 
-		public User(string name, string email, string groupname, string password)
+		public User(string name, string email, string group, string password)
 		{
-			PartitionKey = groupname;
+			PartitionKey = group;
 			RowKey = email;
 			Name = name;
 			Password = password;
 		}
 
-		public string Email { get; set; }
 		public string Name { get; set; }
 		public string Password { get; set; }
 	}

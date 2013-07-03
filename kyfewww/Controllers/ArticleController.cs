@@ -27,15 +27,15 @@ namespace kyfewww.Controllers
 			_dataHelper = dataHelper;
 		}
 
-		public ActionResult Index(string id, string l)
+		public ActionResult Index(string id)
 		{
 			if (string.IsNullOrEmpty(id))
-				return View(_dataHelper.ArticleGetList());
+				return View(_dataHelper.ContentGetList());
 
-			var article = _dataHelper.ArticleGet(id);
-			return article != null 
-				? View("Article", _dataHelper.ArticleGet(id)) 
-				: View(_dataHelper.ArticleGetList());
+			var article = _dataHelper.ContentGet(id);
+			return article != null
+				? View("Article", _dataHelper.ContentGet(id))
+				: View(_dataHelper.ContentGetList());
 		}
 
 	}
