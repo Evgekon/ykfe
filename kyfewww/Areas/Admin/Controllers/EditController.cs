@@ -6,6 +6,7 @@ using kyfelib;
 
 namespace kyfewww.Areas.Admin.Controllers
 {
+	//[Authorize(Roles = "Manager")]
     public class EditController : ApiController
     {
         private IDataHelper _dataHelper;
@@ -42,11 +43,11 @@ namespace kyfewww.Areas.Admin.Controllers
 		}
 
 		// Update PUT api/edit/
-		public bool Put(ContentModel content)
+		public ContentModel Put(ContentModel content)
 		{
-			var c = _dataHelper.ContentGet(content.Date.ToString("yyyyMMddHHmmssffff"));
+			var c = _dataHelper.ContentGet(content.Id);
 
-			return c != null && _dataHelper.ContentUpdate(c);
+			return (c != null && _dataHelper.ContentUpdate(c)) ? content : null;
 		}
 
 		// DELETE api/edit/5

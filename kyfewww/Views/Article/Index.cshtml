@@ -1,4 +1,5 @@
-﻿@model IEnumerable<kyfelib.ContentModel>
+﻿@using kyfelib
+@model IEnumerable<kyfelib.ContentModel>
 @{
 	ViewBag.Title = "YKFE Articles";
 }
@@ -15,9 +16,9 @@
 				<thead>
 					<tr>
 						<th>Date </th>
-						<th>Type </th>
 						<th>Title </th>
 						<th>Author </th>
+						<th>Languages </th>
 					</tr>
 				</thead>
 				<tbody>
@@ -27,20 +28,21 @@
 						{
 							var name = con.Locales.Any() ? con.Locales[0].Name : string.Empty;
 							var author = con.Locales.Any() ? con.Locales[0].Author : string.Empty;
-							
+							var locales = con.Locales.Any() 
+								? con.Locales.Select(l => Enum.GetName(typeof (Locale), l.Locale)).Aggregate((workingSet, next) => workingSet + " " + next) 
+								: string.Empty;
 							<tr>
-								<td>@Html.ActionLink(con.Id, "Index", new {id = con.Id})</td>
-								<td>@Enum.GetName(typeof(kyfelib.ContentType), con.Type)</td>
+								<td>@Html.ActionLink(con.Date.ToShortDateString(), "Index", new {id = con.Id})</td>
 								<td>@name</td>
 								<td>@author</td>
-								<td>@Html.ActionLink("Edit", "Edit", new{controller = "EditContent", area = "Admin", id = con.Id})</td>
+								<td>@locales</td>
 							</tr>
 						}
 					}
 					else
 					{
 						<tr>
-							<td colspan="5">No articles</td>
+							<td colspan="4">No articles</td>
 						</tr>
 					}
 				</tbody>

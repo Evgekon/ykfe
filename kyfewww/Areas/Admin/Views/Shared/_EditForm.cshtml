@@ -10,7 +10,7 @@
 	<div class="modal-body">
 		<p>
 			<div class="btn-group" data-toggle="buttons-radio" id="editType">
-				<button type="button" class="btn" name="Type" value="Article">Article</button>
+				<button type="button" class="btn active" name="Type" value="Article">Article</button>
 				<button type="button" class="btn" name="Type" value="Meditation">Meditation</button>
 				<button type="button" class="btn" name="Type" value="Kriya">Kriya</button>
 			</div>
@@ -37,6 +37,7 @@
 		</p>
 	</div>
 	<div class="modal-footer">
+		<input type="hidden" id="editId" value=""/>
 		<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 		<button class="btn btn-primary" id="btnSave">Save changes</button>
 	</div>

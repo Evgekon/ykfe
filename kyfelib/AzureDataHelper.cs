@@ -88,11 +88,20 @@ namespace kyfelib
 					          };
 				if (locale.Tags.Any())
 					loc.Tags = locale.Tags.Aggregate((workingSentence, next) => workingSentence + ";" + next);
+				ContentLocaleCreate(loc);
 			}
 			newArticle.Id = con.RowKey;
 			newArticle.Date = DateTime.ParseExact(con.RowKey, "yyyyMMddHHmmssffff",
 															  System.Globalization.CultureInfo.InvariantCulture);
 			return newArticle;
+		}
+
+		public void ContentLocaleCreate(ContentLocale locale)
+		{
+			var table = _tableClient.GetTableReference("ContentLocale");
+			table.CreateIfNotExists();
+			var tableOperation = TableOperation.Insert(locale);
+			table.Execute(tableOperation);
 		}
 
 		public bool ContentUpdate(ContentModel updateArticle)
@@ -187,22 +196,26 @@ namespace kyfelib
 			var query =
 				new TableQuery<ContentLocale>().Where(TableQuery.GenerateFilterCondition("ContentId", QueryComparisons.Equal,
 																						 contentId));
+			var result = table.ExecuteQuery(query);
+			var contLocList = new List<ContentModelLocale>();
 
-			return table.ExecuteQuery(query).Select(loc => new ContentModelLocale
-			{
-				Id = loc.RowKey,
-				Locale = (Locale)Enum.Parse(typeof(Locale), loc.PartitionKey),
-				Name = loc.Name,
-				Text = loc.Text,
-				Author = loc.Author,
-				IsDraft = loc.IsDraft,
-				Tags =
-					(!string.IsNullOrEmpty(loc.Tags))
-						? loc.Tags.Split(';')
-							 .Where(t => !string.IsNullOrEmpty(t))
-							 .ToList()
-						: new List<string>()
-			}).ToList();
+			contLocList.AddRange(result.Select(loc => new ContentModelLocale
+				                                          {
+					                                          Id = loc.RowKey,
+					                                          Locale = (Locale) Enum.Parse(typeof (Locale), loc.PartitionKey),
+					                                          Name = loc.Name,
+					                                          Text = loc.Text,
+					                                          Author = loc.Author,
+					                                          IsDraft = loc.IsDraft,
+					                                          Tags =
+						                                          (!string.IsNullOrEmpty(loc.Tags))
+							                                          ? loc.Tags.Split(';')
+							                                               .Where(t => !string.IsNullOrEmpty(t))
+							                                               .ToList()
+							                                          : new List<string>()
+				                                          }));
+
+			return contLocList;
 		}
 		#endregion
 
@@ -252,6 +265,26 @@ namespace kyfelib
 			table.Execute(tableOperation);
 
 			return true;
+		}
+
+		public bool UserValidate(string email, string password)
+		{
+			var user = UserGet(email);
+			return GetPasswordHash(password).Equals(user.Password);
+		}
+
+		public string GetPasswordHash(string password)
+		{
+			var x = new System.Security.Cryptography.MD5CryptoServiceProvider();
+			byte[] bs = Encoding.UTF8.GetBytes(password);
+			bs = x.ComputeHash(bs);
+			var s = new StringBuilder();
+			foreach (byte b in bs)
+			{
+				s.Append(b.ToString("x2").ToLower());
+			}
+			string res = s.ToString();
+			return res;
 		}
 		#endregion
 	}

@@ -9,6 +9,7 @@ using kyfelib;
 
 namespace kyfewww.Areas.Admin.Controllers
 {
+	//[Authorize(Roles = "Manager")]
     public class EditContentController : Controller
     {
         private IDataHelper _dataHelper;

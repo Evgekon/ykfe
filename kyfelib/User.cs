@@ -16,5 +16,7 @@ namespace kyfelib
 
 		public string Name { get; set; }
 		public string Password { get; set; }
+		public string Provider { get; set; } //Local/External provider
+		public string ProviderUid { get; set; } //External providers only
 	}
 }

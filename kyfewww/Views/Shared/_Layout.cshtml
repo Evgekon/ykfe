@@ -28,7 +28,8 @@
 								@Html.ActionLink(Resources.Article.ResourceManager.GetString(contentType + "Lbl"), "Index", "Article", new { area = "", type = contentType }, null)
 							</li>
 	  }
-						<li>@Html.ActionLink("Add Article", "Index", "EditContent", new { area = "Admin", id = "" }, null)</li>
+						<li>&nbsp;</li>
+						<li>@Html.ActionLink("Admin", "Index", "EditContent", new { area = "Admin", id = "" }, null)</li>
 					</ul>
 					<ul id="menu" class="horizontal visible-phone">
 						@foreach (string contentType in Enum.GetNames(typeof(ContentType)))
@@ -38,7 +39,7 @@
 							</li>
 	  }
 						<li></li>
-						<li>@Html.ActionLink("Add Article", "Index", "EditContent", new { area = "Admin", id = "" }, null)</li>
+						<li>@Html.ActionLink("Admin", "Index", "EditContent", new { area = "Admin", id = "" }, null)</li>
 					</ul>
 				</nav>
 			</div>
