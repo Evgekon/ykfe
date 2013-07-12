@@ -47,7 +47,7 @@ namespace kyfewww.Areas.Admin.Controllers
 		{
 			var c = _dataHelper.ContentGet(content.Id);
 
-			return (c != null && _dataHelper.ContentUpdate(c)) ? content : null;
+			return (c != null && _dataHelper.ContentUpdate(content)) ? content : null;
 		}
 
 		// DELETE api/edit/5

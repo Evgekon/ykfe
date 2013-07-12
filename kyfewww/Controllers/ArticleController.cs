@@ -43,7 +43,7 @@ namespace kyfewww.Controllers
 			{
 				ContentType conType;
 				Enum.TryParse(type, true, out conType);
-
+				ViewBag.Title = Resources.Article.ResourceManager.GetString(Enum.GetName(typeof(ContentType), conType) + "Lbl");
 				return View(_dataHelper.ContentGetList(conType));
 			}
 

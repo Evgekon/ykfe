@@ -139,7 +139,7 @@ namespace kyfelib
 					con.RowKey = locRes.Single(l => l.PartitionKey.Equals(locStr)).RowKey;
 
 				var tableOperation = TableOperation.InsertOrReplace(con);
-				table.Execute(tableOperation);
+				locTable.Execute(tableOperation);
 			}
 
 			return true;

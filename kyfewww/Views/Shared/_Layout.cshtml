@@ -25,7 +25,7 @@
 						@foreach (string contentType in Enum.GetNames(typeof(ContentType)))
 	  {
 							<li>
-								@Html.ActionLink(Resources.Article.ResourceManager.GetString(contentType + "Lbl"), "Index", "Article", new { area = "", type = contentType }, null)
+								@Html.ActionLink(Resources.Article.ResourceManager.GetString(contentType + "Lbl"), "Index", "Article", new { area = "", type = contentType, id = string.Empty }, null)
 							</li>
 	  }
 						<li>&nbsp;</li>
